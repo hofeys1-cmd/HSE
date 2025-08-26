@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مدیریت HSE پیمانکاران</title>
+
+  <!-- فونت فارسی -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css">
+
+  <!-- استایل اصلی -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- jQuery و تقویم شمسی -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/persian-date@1.1.0/dist/persian-date.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+</head>
+<body>
+  <header class="container">
+    <div class="brand">
+      <h1>مدیریت HSE پیمانکاران</h1>
+      <div class="subtitle">داشبورد، ثبت و گزارش پیمانکاران، پیمان‌ها، رویدادها، بیمه‌ها، جریمه و عدم انطباق — تقویم شمسی</div>
+    </div>
+    <div class="topbar">
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="جستجو در نام شرکت، پروژه، رویداد..." />
+      </div>
+      <div class="auth">
+        <span id="roleBadge" class="badge b-cyan">حالت مشاهده</span>
+        <button id="adminLoginBtn" class="btn secondary">ورود ادمین</button>
+        <button id="adminLogoutBtn" class="btn secondary hidden">خروج</button>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">داشبورد</button>
+      <button class="tab" data-tab="contractors">پیمانکاران</button>
+      <button class="tab" data-tab="events">رویدادها</button>
+      <button class="tab" data-tab="compliance">جریمه و عدم انطباق</button>
+      <button class="tab" data-tab="reports">گزارش‌ها</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- داشبورد -->
+    <section id="dashboard" class="grid">
+      <div class="col-12 card">
+        <div class="toolbar">
+          <span class="badge b-cyan">نمای کلی</span>
+          <div class="spacer"></div>
+          <button class="btn" onclick="window.print()">چاپ / PDF</button>
+        </div>
+        <div id="dashStats" class="row stats"></div>
+      </div>
+
+      <div class="col-6 card">
+        <h3>بیمه در آستانه پایان (۱۴ روز آینده)</h3>
+        <div id="insuranceAlerts" class="muted">در حال بارگذاری...</div>
+      </div>
+
+      <div class="col-6 card">
+        <h3>جلسات رویداد معوق</h3>
+        <div id="overdueMeetings" class="muted">در حال بارگذاری...</div>
+      </div>
+
+      <div class="col-12 card">
+        <h3>آخرین رویدادها</h3>
+        <div id="latestEvents" class="muted">در حال بارگذاری...</div>
+      </div>
+    </section>
+
+    <!-- پیمانکاران -->
+    <section id="contractors" class="grid hidden">
+      <div class="col-6 card">
+        <h3>ثبت اطلاعات پیمانکار</h3>
+        <div class="hint">برای ثبت/ویرایش باید در حالت ادمین باشید.</div>
+
+        <div class="field">
+          <label>نام شرکت</label>
+          <input id="c_name" placeholder="مثلاً: شرکت توسعه سازه‌های شرق">
+        </div>
+
+        <div class="grid">
+          <div class="col-6 field">
+            <label>سال تاسیس</label>
+            <input id="c_year" type="number" min="1300" max="1500" placeholder="مثلاً 1389">
+          </div>
+          <div class="col-6 field">
+            <label>مدیرعامل</label>
+            <input id="c_ceo" placeholder="نام و نام خانوادگی">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-6 field">
+            <label>نام و نام خانوادگی مسئول HSE</label>
+            <input id="c_hse" placeholder="مثلاً: رضا محمدی">
+          </div>
+          <div class="col-6 field">
+            <label>تایید صلاحیت ایمنی پیمانکاران</label>
+            <select id="c_safetyApproved">
+              <option value="no">خیر</option>
+              <option value="yes">بله</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="c_safetyDateWrap" class="field hidden">
+          <label>تاریخ اعتبار تایید صلاحیت</label>
+          <input id="c_safetyExpire" class="jdate" placeholder="تاریخ را انتخاب کنید">
+          <div class="hint">در فهرست، وضعیت تایید ایمنی با رنگ سبز/قرمز نمایش داده می‌شود.</div>
+        </div>
+
+        <div class="card inset">
+          <h4>پیمان‌ها</h4>
+          <div id="contractsList" class="muted">هیچ پیمانی افزوده نشده است.</div>
+          <button class="btn ghost editor-only" onclick="addContractRow()">+ افزودن پیمان</button>
+        </div>
+
+        <div class="card inset">
+          <h4>بیمه‌نامه‌ها</h4>
+          <div id="insList" class="muted">هیچ بیمه‌نامه‌ای افزوده نشده است.</div>
+          <button class="btn ghost editor-only" onclick="addInsuranceRow()">+ افزودن بیمه‌نامه</button>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn editor-only" onclick="saveContractor()">ثبت پیمانکار</button>
+          <button class="btn secondary editor-only" onclick="resetContractorForm()">پاکسازی فرم</button>
+          <div class="spacer"></div>
+          <button class="btn secondary editor-only" onclick="exportJSON()">خروجی JSON</button>
+          <label class="btn ghost editor-only file-label">
+            ورود JSON
+            <input type="file" id="importFile" accept="application/json" onchange="importJSON(event)" />
+          </label>
+        </div>
+      </div>
+
+      <div class="col-6 card">
+        <h3>فهرست پیمانکاران</h3>
+        <div id="contractorsTableWrap">در حال بارگذاری...</div>
+      </div>
+    </section>
+
+    <!-- رویدادها -->
+    <section id="events" class="grid hidden">
+      <div class="col-6 card">
+        <h3>ثبت رویداد پیمانکار</h3>
+        <div class="hint">برای ثبت/ویرایش باید در حالت ادمین باشید.</div>
+
+        <div class="field">
+          <label>انتخاب پیمانکار</label>
+          <select id="e_contractor"></select>
+        </div>
+
+        <div class="grid">
+          <div class="col-6 field">
+            <label>نوع رویداد</label>
+            <select id="e_type">
+              <option>حادثه</option>
+              <option>شبه حادثه</option>
+              <option>بیماری</option>
+            </select>
+          </div>
+          <div class="col-6 field">
+            <label>پروژه / محل وقوع</label>
+            <input id="e_place" placeholder="نام پروژه یا محل وقوع">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-6 field">
+            <label>تاریخ وقوع</label>
+            <input id="e_date" class="jdate" placeholder="انتخاب تاریخ">
+          </div>
+          <div class="col-6 field">
+            <label>ساعت وقوع</label>
+            <input id="e_time" type="time">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>خسارت جانی داشته است؟</label>
+          <select id="e_hasInjury">
+            <option value="no">خیر</option>
+            <option value="yes">بله</option>
+          </select>
+        </div>
+
+        <div id="injurySection" class="hidden">
+          <div class="grid">
+            <div class="col-6 field"><label>نام و نام خانوادگی مصدوم</label><input id="i_name"></div>
+            <div class="col-6 field"><label>کد ملی</label><input id="i_nid" class="mono" placeholder="10 رقم"></div>
+          </div>
+          <div class="grid">
+            <div class="col-6 field"><label>نام پدر</label><input id="i_father"></div>
+            <div class="col-6 field"><label>تاریخ تولد</label><input id="i_birth" class="jdate"></div>
+          </div>
+          <div class="grid">
+            <div class="col-6 field"><label>تاریخ استخدام</label><input id="i_hire" class="jdate"></div>
+            <div class="col-6 field"><label>تلفن تماس</label><input id="i_phone" class="mono" placeholder="09xxxxxxxxx"></div>
+          </div>
+
+          <div class="card inset">
+            <h4>شهود</h4>
+            <div class="grid">
+              <div class="col-6 field"><label>شاهد ۱ - نام و نام خانوادگی</label><input id="w1_name"></div>
+              <div class="col-6 field"><label>شاهد ۱ - تلفن</label><input id="w1_phone" class="mono"></div>
+              <div class="col-6 field"><label>شاهد ۲ - نام و نام خانوادگی</label><input id="w2_name"></div>
+              <div class="col-6 field"><label>شاهد ۲ - تلفن</label><input id="w2_phone" class="mono"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-6 field">
+            <label>خسارت مالی داشته؟</label>
+            <select id="e_hasDamage">
+              <option value="no">خیر</option>
+              <option value="yes">بله</option>
+            </select>
+          </div>
+          <div class="col-6 field hidden" id="damageLevelWrap">
+            <label>شدت خسارت مالی</label>
+            <select id="damageLevel"><option>جزئی</option><option>متوسط</option><option>شدید</option><option>خیلی شدید</option></select>
+          </div>
+        </div>
+        <div class="field hidden" id="damageDescWrap">
+          <label>توضیحات خسارت مالی</label>
+          <textarea id="damageDesc"></textarea>
+        </div>
+
+        <div class="field">
+          <label>مراجعه به بهداری مجتمع</label>
+          <select id="e_clinic">
+            <option value="no">خیر</option>
+            <option value="yes">بله</option>
+          </select>
+        </div>
+
+        <div id="clinicSection" class="hidden">
+          <div class="grid">
+            <div class="col-6 field"><label>زمان ورود (تاریخ)</label><input id="clinic_date" class="jdate"></div>
+            <div class="col-6 field"><label>زمان ورود (ساعت)</label><input id="clinic_time" type="time"></div>
+          </div>
+          <div class="field"><label>شرح حال در زمان مراجعه</label><textarea id="clinic_status"></textarea></div>
+          <div class="field"><label>اقدامات صورت گرفته</label><textarea id="clinic_actions"></textarea></div>
+          <div class="field"><label>نتیجه اقدامات بهداری</label>
+            <select id="clinic_result"><option>بازگشت به کار</option><option>ارجاع به متخصص</option><option>اعزام</option></select>
+          </div>
+          <div id="dispatchWrap" class="hidden">
+            <div class="grid">
+              <div class="col-6 field"><label>نوع اعزام</label>
+                <select id="dispatch_type"><option>خودرو پیمانکار</option><option>آمبولانس</option></select></div>
+              <div class="col-6 field"><label>زمان اعزام</label><input id="dispatch_time" type="time"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field"><label>شرح مختصر رویداد</label><textarea id="e_desc" placeholder="خلاصه‌ای از رویداد"></textarea></div>
+
+        <div class="field">
+          <label>جلسه بررسی رویداد برگزار شده؟</label>
+          <select id="e_meetingStatus">
+            <option value="no-need">نیاز به تشکیل جلسه نبوده</option>
+            <option value="done">بله (برگزار شده)</option>
+            <option value="scheduled">در دست اقدام (زمان‌بندی شده)</option>
+          </select>
+        </div>
+        <div id="meetingDateWrap" class="hidden">
+          <label>تاریخ جلسه</label>
+          <input id="meeting_date" class="jdate">
+          <div class="hint">اگر از تاریخ جلسه گذشته باشد در داشبورد با رنگ نارنجی نمایش داده می‌شود.</div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn editor-only" onclick="saveEvent()">ثبت رویداد</button>
+          <button class="btn secondary editor-only" onclick="resetEventForm()">پاکسازی فرم</button>
+        </div>
+      </div>
+
+      <div class="col-6 card">
+        <h3>فهرست رویدادها</h3>
+        <div id="eventsTableWrap">در حال بارگذاری...</div>
+      </div>
+    </section>
+
+    <!-- جریمه و عدم انطباق -->
+    <section id="compliance" class="grid hidden">
+      <div class="col-6 card">
+        <h3>ثبت جریمه</h3>
+        <div class="field"><label>پیمانکار</label><select id="f_contractor"></select></div>
+        <div class="grid">
+          <div class="col-6 field"><label>شماره جریمه</label><input id="f_no" class="mono"></div>
+          <div class="col-6 field"><label>تاریخ</label><input id="f_date" class="jdate"></div>
+        </div>
+        <div class="grid">
+          <div class="col-6 field"><label>مبلغ جریمه (ریال)</label><input id="f_amount" type="number" class="mono"></div>
+          <div class="col-6 field"><label>کارشناس صادرکننده</label><input id="f_expert"></div>
+        </div>
+        <div class="field"><label>شرح مختصر</label><textarea id="f_desc"></textarea></div>
+        <div class="toolbar"><button class="btn editor-only" onclick="saveFine()">ثبت جریمه</button></div>
+      </div>
+
+      <div class="col-6 card">
+        <h3>ثبت عدم انطباق</h3>
+        <div class="field"><label>پیمانکار</label><select id="n_contractor"></select></div>
+        <div class="grid">
+          <div class="col-6 field"><label>شماره عدم انطباق</label><input id="n_no" class="mono"></div>
+          <div class="col-6 field"><label>تاریخ</label><input id="n_date" class="jdate"></div>
+        </div>
+        <div class="grid">
+          <div class="col-12 field"><label>شرح مختصر</label><textarea id="n_desc"></textarea></div>
+          <div class="col-12 field"><label>کارشناس صادرکننده</label><input id="n_expert"></div>
+        </div>
+        <div class="toolbar"><button class="btn editor-only" onclick="saveNonconformity()">ثبت عدم انطباق</button></div>
+      </div>
+
+      <div class="col-12 card">
+        <h3>نمایش تجمیعی (به تفکیک پیمانکار)</h3>
+        <div id="complianceTableWrap">در حال بارگذاری...</div>
+      </div>
+    </section>
+
+    <!-- گزارش‌ها -->
+    <section id="reports" class="grid hidden">
+      <div class="col-12 card">
+        <h3>گزارش‌گیری و خروجی</h3>
+        <div class="toolbar">
+          <button class="btn secondary" onclick="renderReport('contractors')">گزارش پیمانکاران</button>
+          <button class="btn secondary" onclick="renderReport('events')">گزارش رویدادها</button>
+          <button class="btn secondary" onclick="renderReport('compliance')">گزارش جریمه / عدم انطباق</button>
+          <div class="spacer"></div>
+          <button class="btn" onclick="window.print()">چاپ / ذخیره به PDF</button>
+        </div>
+        <div id="reportArea" style="margin-top:14px"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
