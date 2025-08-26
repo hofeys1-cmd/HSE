@@ -1,0 +1,78 @@
+:root{
+  --bg:#0f172a; --panel:#0b1222; --card:#101b34; --muted:#94a3b8; --text:#e2e8f0;
+  --primary:#22d3ee; --primary-2:#38bdf8; --accent:#a78bfa; --warn:#f59e0b; --danger:#ef4444; --success:#22c55e;
+  --border:#1f2a44; --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"Vazirmatn",system-ui; margin:0; line-height:1.6;
+  background: radial-gradient(1200px 800px at 120% -10%,#1b2a57 0%,#0b1222 40%,#0f172a 100%);
+  color:var(--text);
+}
+.container{max-width:1200px; margin:0 auto; padding:12px 20px}
+header{position:sticky; top:0; z-index:10; background:linear-gradient(180deg,rgba(11,18,34,.9),rgba(11,18,34,.65),rgba(11,18,34,0)); border-bottom:1px solid var(--border); backdrop-filter: blur(10px)}
+.brand h1{margin:0}
+.subtitle{color:var(--muted); margin-top:6px}
+.topbar{display:flex; gap:12px; align-items:center; margin-top:12px}
+.spacer{flex:1}
+.search{flex:1}
+.search input{width:100%; background:#0b152c; border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:12px; outline:0}
+.auth{display:flex; gap:8px; align-items:center}
+
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-bottom:8px}
+.tab{background:linear-gradient(180deg,#12203e,#0d1830); border:1px solid var(--border); color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer}
+.tab.active{border-color:var(--primary); box-shadow:0 0 0 2px rgba(34,211,238,.15) inset}
+
+.grid{display:grid; gap:16px; grid-template-columns:repeat(12,1fr)}
+.col-12{grid-column:span 12} .col-6{grid-column:span 6} .col-4{grid-column:span 4} .col-3{grid-column:span 3}
+@media (max-width:960px){ .col-6,.col-4,.col-3{grid-column:span 12} }
+
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.00));
+  border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)
+}
+.card.inset{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)); margin-top:10px}
+.row{display:flex; gap:12px; flex-wrap:wrap}
+.stats .kpi{flex:1 1 200px; background:#0c1730; border:1px solid var(--border); border-radius:12px; padding:12px}
+
+h3{margin-top:0}
+label{display:block; font-size:13px; color:var(--muted); margin-bottom:8px}
+.field{display:flex; flex-direction:column; gap:8px; margin-bottom:12px}
+input, select, textarea{
+  background:#0b152c; border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:12px; outline:0; width:100%
+}
+textarea{min-height:90px; resize:vertical}
+.hint{font-size:12px; color:var(--muted)}
+
+.badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid transparent}
+.b-green{background:rgba(34,197,94,.15); color:#86efac; border-color:rgba(34,197,94,.35)}
+.b-red{background:rgba(239,68,68,.15); color:#fca5a5; border-color:rgba(239,68,68,.35)}
+.b-amber{background:rgba(245,158,11,.15); color:#fcd34d; border-color:rgba(245,158,11,.35)}
+.b-cyan{background:rgba(34,211,238,.12); color:#67e8f9; border-color:rgba(34,211,238,.35)}
+
+.btn{background:linear-gradient(180deg,var(--primary),var(--primary-2)); color:#002; font-weight:700; border:none; padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:0 8px 20px rgba(56,189,248,.25)}
+.btn.secondary{ background:#13203e; color:var(--text); border:1px solid var(--border); box-shadow:none }
+.btn.ghost{ background:transparent; color:var(--text); border:1px dashed var(--border)}
+.btn:disabled{opacity:.6; cursor:not-allowed}
+.file-label{position:relative; overflow:hidden}
+.file-label input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer}
+
+table{width:100%; border-collapse:separate; border-spacing:0 8px}
+th,td{padding:10px 12px; text-align:right}
+th{color:var(--muted); font-weight:600; font-size:13px}
+tbody tr{background:#0c1730; border:1px solid var(--border)}
+tbody tr td:first-child, thead tr th:first-child{border-top-right-radius:10px; border-bottom-right-radius:10px}
+tbody tr td:last-child, thead tr th:last-child{border-top-left-radius:10px; border-bottom-left-radius:10px}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:12px}
+.hidden{display:none !important}
+
+@media print{
+  header, .tabs, .toolbar, .btn, .file-label, .search, .auth, .no-print { display:none !important }
+  body{ background:#fff; color:#000 }
+  .card{box-shadow:none; border:1px solid #ccc}
+  .container{max-width:100%; padding:0 16px}
+  table{border-spacing:0}
+  tbody tr{background:#fff; border:1px solid #ddd}
+}
